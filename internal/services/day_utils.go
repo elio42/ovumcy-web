@@ -237,6 +237,9 @@ func DayHasData(entry models.DailyLog) bool {
 	if entry.IsPeriod {
 		return true
 	}
+	if entry.LibidoPeak {
+		return true
+	}
 	if entry.Mood >= MinDayMood && entry.Mood <= MaxDayMood {
 		return true
 	}
@@ -297,6 +300,9 @@ func comparableDayFlow(flow string) string {
 // barrier's exception set with the reason above.
 func IsAutoFilledPeriodCandidate(entry models.DailyLog, propagatedFlow string) bool {
 	if !entry.IsPeriod || entry.CycleStart || entry.IsUncertain {
+		return false
+	}
+	if entry.LibidoPeak {
 		return false
 	}
 	if flow := comparableDayFlow(entry.Flow); flow != "" && flow != models.FlowNone && flow != comparableDayFlow(propagatedFlow) {

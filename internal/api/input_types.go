@@ -19,6 +19,7 @@ type credentialsInput struct {
 // withdraws that start (services.DayEntryInput.PeriodFromStoredStart).
 type dayPayload struct {
 	IsPeriod              bool `json:"is_period"`
+	LibidoPeak            bool `json:"libido_peak"`
 	ConfirmCycleStart     bool `json:"-"`
 	PeriodFromStoredStart bool `json:"-"`
 

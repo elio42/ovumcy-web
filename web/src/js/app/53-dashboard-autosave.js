@@ -1326,7 +1326,7 @@
   // An unchecked checkbox posts nothing, and a field a partial write leaves
   // out keeps its stored value: turning the period off is sent as an explicit
   // false, never inferred from absence.
-  var DAY_PATCH_EXPLICIT_FALSE = ["is_period"];
+  var DAY_PATCH_EXPLICIT_FALSE = ["is_period", "libido_peak"];
 
   function groupDayEntries(entries) {
     var grouped = { values: {}, order: [] };

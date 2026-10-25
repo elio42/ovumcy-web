@@ -18,8 +18,9 @@ type StatsSymptomReader interface {
 }
 
 type StatsService struct {
-	days     StatsDayReader
-	symptoms StatsSymptomReader
+	days      StatsDayReader
+	symptoms  StatsSymptomReader
+	predictor *PredictorClient
 }
 
 const statsOverviewWindowYears = 2
@@ -62,12 +63,21 @@ func NewStatsService(days StatsDayReader, symptoms StatsSymptomReader) *StatsSer
 	}
 }
 
+// ConfigurePredictor attaches the transformer-sidecar client (prototype
+// fork). A nil client keeps the legacy median path; the composition root
+// passes NewPredictorClient(opts.Predictor) here.
+func (service *StatsService) ConfigurePredictor(client *PredictorClient) {
+	service.predictor = client
+}
+
 func (service *StatsService) BuildCycleStatsForRange(ctx context.Context, user *models.User, from time.Time, to time.Time, now time.Time, location *time.Location) (CycleStats, []models.DailyLog, error) {
 	logs, err := service.days.FetchLogsForUser(ctx, user.ID, from, to, location)
 	if err != nil {
 		return CycleStats{}, nil, err
 	}
-	return service.BuildCycleStatsFromLogs(user, logs, now, location), logs, nil
+	stats := service.BuildCycleStatsFromLogs(user, logs, now, location)
+	service.ApplyPredictorOverlay(ctx, user, logs, &stats, now, location)
+	return stats, logs, nil
 }
 
 // BuildCycleStatsFromLogs computes cycle stats from already-fetched logs, for
@@ -120,6 +130,17 @@ func BuildCycleStatsFromLogs(user *models.User, logs []models.DailyLog, now time
 // TestStatsServiceBuildCycleStatsFromLogsIsThePackageFunction.
 func (service *StatsService) BuildCycleStatsFromLogs(user *models.User, logs []models.DailyLog, now time.Time, location *time.Location) CycleStats {
 	return BuildCycleStatsFromLogs(user, logs, now, location)
+}
+
+// ApplyPredictorOverlay tries the transformer sidecar for one stats
+// derivation (prototype fork). It is separate from BuildCycleStatsFromLogs so
+// the derivation stays pure legacy and the sidecar — which needs a deadline —
+// only runs where a ctx is in scope (BuildCycleStatsForRange,
+// BuildOverviewStats, and the dashboard builder's assertion below).
+func (service *StatsService) ApplyPredictorOverlay(ctx context.Context, user *models.User, logs []models.DailyLog, stats *CycleStats, now time.Time, location *time.Location) {
+	if service.predictor != nil {
+		service.predictor.ApplyPredictorOverlay(ctx, user, logs, stats, now, location)
+	}
 }
 
 // StatsOverviewRange is the one history window every surface derives its cycle

@@ -59,6 +59,31 @@ services:
       - WEBHOOK_BLOCK_PRIVATE_ADDRESSES=${WEBHOOK_BLOCK_PRIVATE_ADDRESSES:-}
       - REMINDER_SCHEDULER_ENABLED=${REMINDER_SCHEDULER_ENABLED:-}
       - REMINDER_SCHEDULER_HOUR=${REMINDER_SCHEDULER_HOUR:-}
+      # Transformer sidecar (prototype fork, off by default). Same shared
+      # bridge, no published port, no TLS on that net by design; bearer token
+      # only. The sidecar image is built from the companion training repo.
+      - PREDICTOR_ENABLED=${PREDICTOR_ENABLED:-}
+      - PREDICTOR_URL=${PREDICTOR_URL:-http://predictor:8000}
+      - PREDICTOR_TOKEN=${PREDICTOR_TOKEN:-}
+      - PREDICTOR_TIMEOUT_MS=${PREDICTOR_TIMEOUT_MS:-}
+  # Transformer sidecar (prototype fork). Internal-only: exposed on the shared
+  # bridge, no published port. Pin the image in .env when cutting a release.
+  predictor:
+    image: ${PREDICTOR_IMAGE:-ovumcy/predictor:dev}
+    container_name: ovumcy-predictor
+    expose:
+      - "8000"
+    environment:
+      - PREDICTOR_TOKEN=${PREDICTOR_TOKEN:-}
+    init: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    restart: unless-stopped
     init: true
     security_opt:
       - no-new-privileges:true

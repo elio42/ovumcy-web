@@ -57,6 +57,7 @@ var (
 // into both functions from shipping with no proof that it flips either.
 var dayManualSignalFixtures = map[string]models.DailyLog{
 	"Flow":            {Flow: models.FlowHeavy},
+	"LibidoPeak":      {LibidoPeak: true},
 	"Mood":            {Mood: MinDayMood},
 	"SexActivity":     {SexActivity: models.SexActivityProtected},
 	"BBT":             {BBT: new(36.5)},

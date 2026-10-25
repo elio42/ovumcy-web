@@ -367,6 +367,13 @@
                 data-period-label-off="{{t .Messages "dashboard.period_day"}}"><span data-period-toggle-glyph aria-hidden="true">{{template "icon" "drop"}}</span> {{t .Messages "dashboard.period_day"}}</span>
             </span>
           </label>
+
+          <label class="period-toggle" data-binary-toggle data-active="{{if .TodayEntry.LibidoPeak}}true{{else}}false{{end}}">
+            <input type="checkbox" name="libido_peak" value="true" data-binary-toggle-input {{if .TodayEntry.LibidoPeak}}checked{{end}}>
+            <span class="period-toggle-copy">
+              <span class="period-toggle-main">{{t .Messages "dashboard.libido_peak"}}</span>
+            </span>
+          </label>
         </div>
 
         <div class="dashboard-once-tip journal-muted text-sm" data-once-tip="dashboard-first-tour" hidden>{{t .Messages "dashboard.first_dashboard_tip"}}</div>

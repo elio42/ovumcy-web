@@ -21,6 +21,7 @@ func seedPatchCycleStartDay(t *testing.T, logs *dayLogRepositoryStub, day time.T
 		UserID:          10,
 		Date:            day,
 		IsPeriod:        true,
+		LibidoPeak:      true,
 		CycleStart:      true,
 		Flow:            models.FlowMedium,
 		Mood:            2,

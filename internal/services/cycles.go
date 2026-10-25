@@ -52,6 +52,16 @@ type CycleStats struct {
 	// writer; on stats that have not been published it is always false and
 	// means nothing.
 	CycleDataStale bool `json:"cycle_data_stale"`
+
+	// PredictorApplied marks stats carrying a transformer-sidecar overlay
+	// (prototype fork): ApplyPredictorOverlay wrote the neural dates below
+	// beside the legacy fields. json:"-" keeps every serialized surface byte-stable.
+	PredictorApplied               bool      `json:"-"`
+	PredictorNeuralNextPeriodStart time.Time `json:"-"`
+	PredictorNeuralOvulationDate   time.Time `json:"-"`
+	PredictorNeuralFertileStart    time.Time `json:"-"`
+	PredictorNeuralFertileEnd      time.Time `json:"-"`
+	PredictorModelVersion          string    `json:"-"`
 }
 
 type detectedCycle struct {

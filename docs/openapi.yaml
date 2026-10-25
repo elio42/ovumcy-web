@@ -803,6 +803,7 @@ components:
         base nor the value written.
       properties:
         base_is_period: { type: boolean }
+        base_libido_peak: { type: boolean }
         base_flow: { type: string }
         base_mood: { type: integer }
         base_sex_activity: { type: string }
@@ -833,6 +834,9 @@ components:
         field empty.
       properties:
         is_period:
+          type: boolean
+          default: false
+        libido_peak:
           type: boolean
           default: false
         flow:
@@ -900,6 +904,7 @@ components:
           type: string
           format: date
         is_period: { type: boolean }
+        libido_peak: { type: boolean }
         cycle_start: { type: boolean }
         is_uncertain: { type: boolean }
         flow:

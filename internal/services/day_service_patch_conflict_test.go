@@ -29,6 +29,10 @@ var dayFieldConflictCases = map[string]dayFieldConflictCase{
 		base:    func(in *DayEntryInput) { in.IsPeriod = false },
 		written: func(in *DayEntryInput) { in.IsPeriod = false },
 	},
+	"LibidoPeak": {
+		base:    func(in *DayEntryInput) { in.LibidoPeak = false },
+		written: func(in *DayEntryInput) { in.LibidoPeak = false },
+	},
 	"Flow": {
 		base:    func(in *DayEntryInput) { in.Flow = models.FlowLight },
 		written: func(in *DayEntryInput) { in.Flow = models.FlowHeavy },

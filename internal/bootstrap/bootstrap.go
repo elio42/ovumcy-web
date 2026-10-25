@@ -50,6 +50,9 @@ type Options struct {
 	// instance every webhook column is inert, and a surface that called such a
 	// row "armed" would claim a capability the process does not have.
 	OutboundDeliveryEnabled bool
+	// Predictor carries the transformer-sidecar wiring (prototype fork,
+	// PREDICTOR_*): the zero value keeps the legacy median path.
+	Predictor services.PredictorConfig
 }
 
 // i18nDisclaimerProvider adapts the i18n Manager to services.NotifyCopyProvider:
@@ -139,6 +142,9 @@ func BuildDependencies(repositories *db.Repositories, secretKey []byte, i18nMana
 	registrationService := services.NewRegistrationService(authService, repositories.Users, opts.RegistrationMode)
 	viewerService := services.NewViewerService(dayService, symptomService)
 	statsService := services.NewStatsService(dayService, symptomService)
+	if predictor := services.NewPredictorClient(opts.Predictor); predictor != nil {
+		statsService.ConfigurePredictor(predictor)
+	}
 	calendarViewService := services.NewCalendarViewService(dayService, statsService)
 	calendarFeedService := services.NewCalendarFeedService(repositories.Users, dayService, i18nDisclaimerProvider{manager: i18nManager}, secretKey)
 	calendarFeedSettingsService := services.NewCalendarFeedSettingsService(repositories.Users, secretKey)

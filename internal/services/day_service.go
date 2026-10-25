@@ -25,6 +25,7 @@ var (
 
 type DayEntryInput struct {
 	IsPeriod        bool
+	LibidoPeak      bool
 	Flow            string
 	Mood            int
 	SexActivity     string
@@ -236,6 +237,7 @@ func (service *DayService) UpsertDayEntry(ctx context.Context, userID uint, dayS
 		previous := priorDayState{IsPeriod: entry.IsPeriod, Flow: entry.Flow, Found: true}
 		payload = mergePreservedDayEntryInput(entry, payload)
 		entry.IsPeriod = payload.IsPeriod
+		entry.LibidoPeak = payload.LibidoPeak
 		if !payload.IsPeriod {
 			entry.CycleStart = false
 			entry.IsUncertain = false
@@ -259,6 +261,7 @@ func (service *DayService) UpsertDayEntry(ctx context.Context, userID uint, dayS
 		UserID:          userID,
 		Date:            dayStart,
 		IsPeriod:        payload.IsPeriod,
+		LibidoPeak:      payload.LibidoPeak,
 		Flow:            payload.Flow,
 		Mood:            payload.Mood,
 		SexActivity:     payload.SexActivity,
@@ -329,6 +332,7 @@ func mergePreservedDayEntryInput(existing models.DailyLog, payload DayEntryInput
 // partial write that leaves is_period alone leaves cycle_start alone too.
 type DayEntryFields struct {
 	IsPeriod        bool
+	LibidoPeak      bool
 	Flow            bool
 	Mood            bool
 	SexActivity     bool
@@ -361,6 +365,9 @@ func mergeDayEntryPatch(existing models.DailyLog, patch DayEntryInput, fields Da
 	if !fields.IsPeriod {
 		merged.IsPeriod = existing.IsPeriod
 		merged.PeriodFromStoredStart = false
+	}
+	if !fields.LibidoPeak {
+		merged.LibidoPeak = existing.LibidoPeak
 	}
 	if !fields.Flow {
 		merged.Flow = NormalizeDayFlow(existing.Flow)
@@ -428,6 +435,7 @@ func dayEntryPatchConflicts(existing models.DailyLog, written DayEntryInput, fie
 		return named && hasBase && !equal(stored, based) && !equal(stored, written)
 	}
 	return conflicts(fields.IsPeriod, base.Fields.IsPeriod, func(a, b DayEntryInput) bool { return a.IsPeriod == b.IsPeriod }) ||
+		conflicts(fields.LibidoPeak, base.Fields.LibidoPeak, func(a, b DayEntryInput) bool { return a.LibidoPeak == b.LibidoPeak }) ||
 		conflicts(fields.Flow, base.Fields.Flow, func(a, b DayEntryInput) bool { return a.Flow == b.Flow }) ||
 		conflicts(fields.Mood, base.Fields.Mood, func(a, b DayEntryInput) bool { return a.Mood == b.Mood }) ||
 		conflicts(fields.SexActivity, base.Fields.SexActivity, func(a, b DayEntryInput) bool { return a.SexActivity == b.SexActivity }) ||
@@ -450,6 +458,7 @@ func normalizedStoredDayEntry(log models.DailyLog) DayEntryInput {
 func dayLogFromEntryInput(input DayEntryInput) models.DailyLog {
 	return models.DailyLog{
 		IsPeriod:        input.IsPeriod,
+		LibidoPeak:      input.LibidoPeak,
 		Flow:            input.Flow,
 		Mood:            input.Mood,
 		SexActivity:     input.SexActivity,
@@ -920,6 +929,7 @@ func (service *DayService) manualCycleStartPayload(ctx context.Context, userID u
 
 	payload := DayEntryInput{
 		IsPeriod:        true,
+		LibidoPeak:      existingEntry.LibidoPeak,
 		Flow:            existingEntry.Flow,
 		Mood:            existingEntry.Mood,
 		SexActivity:     NormalizeDaySexActivity(existingEntry.SexActivity),

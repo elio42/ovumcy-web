@@ -68,6 +68,7 @@ func parseDayPayloadUnderPrefix(c fiber.Ctx, user *models.User, formBody bool, h
 	} else {
 		var err error
 		payload.IsPeriod = services.ParseBoolLike(formBodyValue(c, prefix+"is_period"))
+		payload.LibidoPeak = services.ParseBoolLike(formBodyValue(c, prefix+"libido_peak"))
 		payload.ConfirmCycleStart = services.ParseBoolLike(formBodyValue(c, prefix+"cycle_start"))
 		payload.PeriodFromStoredStart = services.ParseBoolLike(formBodyValue(c, prefix+"period_from_stored_start"))
 		payload.Flow = strings.ToLower(strings.TrimSpace(formBodyValue(c, prefix+"flow")))
@@ -163,6 +164,7 @@ func dayJSONMembersUnderPrefix(body []byte, prefix string) ([]byte, error) {
 // only when the key is absent.
 type dayPayloadPresence struct {
 	IsPeriod        json.RawMessage `json:"is_period"`
+	LibidoPeak      json.RawMessage `json:"libido_peak"`
 	Flow            json.RawMessage `json:"flow"`
 	Mood            json.RawMessage `json:"mood"`
 	SexActivity     json.RawMessage `json:"sex_activity"`
@@ -208,6 +210,7 @@ func parseDayPayloadFieldsUnderPrefix(c fiber.Ctx, formBody bool, hidden preserv
 		// codecov:ignore:end
 		return services.DayEntryFields{
 			IsPeriod:        presence.IsPeriod != nil,
+			LibidoPeak:      presence.LibidoPeak != nil,
 			Flow:            presence.Flow != nil,
 			Mood:            presence.Mood != nil,
 			SexActivity:     presence.SexActivity != nil,
@@ -223,6 +226,7 @@ func parseDayPayloadFieldsUnderPrefix(c fiber.Ctx, formBody bool, hidden preserv
 	postArgs := c.RequestCtx().PostArgs()
 	return services.DayEntryFields{
 		IsPeriod:        formValuePresent(c, prefix+"is_period"),
+		LibidoPeak:      formValuePresent(c, prefix+"libido_peak"),
 		Flow:            formValuePresent(c, prefix+"flow"),
 		Mood:            formValuePresent(c, prefix+"mood"),
 		SexActivity:     !hidden.SexActivity && formValuePresent(c, prefix+"sex_activity"),

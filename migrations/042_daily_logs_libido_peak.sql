@@ -1,0 +1,1 @@
+ALTER TABLE daily_logs ADD COLUMN libido_peak BOOLEAN NOT NULL DEFAULT 0;

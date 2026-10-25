@@ -205,6 +205,7 @@ func (handler *Handler) resolveUpsertDayRequest(c fiber.Ctx, partial bool) (upse
 func buildUpsertDayEntryInput(payload dayPayload, cleanSymptomIDs []uint, hidden preservedDayFields) services.DayEntryInput {
 	return services.DayEntryInput{
 		IsPeriod:              payload.IsPeriod,
+		LibidoPeak:            payload.LibidoPeak,
 		ConfirmCycleStart:     payload.ConfirmCycleStart,
 		PeriodFromStoredStart: payload.PeriodFromStoredStart,
 		Flow:                  payload.Flow,

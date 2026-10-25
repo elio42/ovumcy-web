@@ -17,6 +17,7 @@ type dayResponse struct {
 	UserID          uint      `json:"user_id"`
 	Date            string    `json:"date"`
 	IsPeriod        bool      `json:"is_period"`
+	LibidoPeak      bool      `json:"libido_peak"`
 	CycleStart      bool      `json:"cycle_start"`
 	IsUncertain     bool      `json:"is_uncertain"`
 	Flow            string    `json:"flow"`
@@ -41,6 +42,7 @@ func newDayResponse(entry models.DailyLog) dayResponse {
 		UserID:          entry.UserID,
 		Date:            services.CalendarDayKey(entry.Date),
 		IsPeriod:        entry.IsPeriod,
+		LibidoPeak:      entry.LibidoPeak,
 		CycleStart:      entry.CycleStart,
 		IsUncertain:     entry.IsUncertain,
 		Flow:            entry.Flow,

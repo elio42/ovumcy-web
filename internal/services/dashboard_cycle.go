@@ -675,6 +675,12 @@ func DashboardUpcomingPredictions(stats CycleStats, user *models.User, today tim
 		return prediction
 	}
 
+	// Prototype transformer-sidecar fork: stats carrying a neural overlay
+	// answer here; every other input runs the legacy math below untouched.
+	if neural, ok := neuralUpcomingPrediction(stats, today, cycleLength); ok {
+		return neural
+	}
+
 	// The next period is the one that closes the RUNNING cycle, even once its
 	// expected day has passed: rolled with the anchor, every surface named a
 	// window a month out from cycle day m+1 until the overdue gate withheld it at

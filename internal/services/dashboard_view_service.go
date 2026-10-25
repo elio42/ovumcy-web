@@ -540,6 +540,13 @@ func (service *DashboardViewService) buildDashboardStats(ctx context.Context, us
 	}
 	rangeLogs := FilterLogsToStatsHistory(logs, today, location)
 	stats := service.stats.BuildCycleStatsFromLogs(user, rangeLogs, now, location)
+	// Prototype transformer-sidecar fork: the ranged path overlays inside
+	// StatsService (it carries a ctx); this in-memory path has the ctx here,
+	// so it asserts the optional overlay capability instead. Fakes without a
+	// client skip it and keep the legacy median.
+	if overlay, ok := service.stats.(PredictorStatsOverlay); ok {
+		overlay.ApplyPredictorOverlay(ctx, user, rangeLogs, &stats, now, location)
+	}
 	return stats, logs, nil
 }
 

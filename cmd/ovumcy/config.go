@@ -42,6 +42,9 @@ type runtimeConfig struct {
 	// deliverer hardening.
 	WebhookBlockPrivate bool
 	ReminderScheduler   reminderSchedulerSettings
+	// Predictor carries the transformer-sidecar wiring (prototype fork,
+	// PREDICTOR_*): the zero value keeps the legacy median path.
+	Predictor services.PredictorConfig
 }
 
 // reminderSchedulerSettings configures the optional built-in reminder scheduler
@@ -354,7 +357,25 @@ func loadRuntimeConfig(location *time.Location) (runtimeConfig, error) {
 			// dedicated range helper that accepts the full 0-23 clock.
 			Hour: getEnvIntInRange("REMINDER_SCHEDULER_HOUR", 9, 0, 23),
 		},
+		Predictor: resolvePredictorConfig(),
 	}, nil
+}
+
+// resolvePredictorConfig reads the transformer-sidecar wiring (prototype
+// fork). Disabled by default; the token follows the same env-or-file secret
+// pattern as the other sensitive values.
+func resolvePredictorConfig() services.PredictorConfig {
+	token, err := resolveSecretFromEnvOrFile("PREDICTOR_TOKEN", "PREDICTOR_TOKEN_FILE", maxOIDCClientSecretFileBytes)
+	if err != nil {
+		log.Printf("invalid PREDICTOR_TOKEN: %v", err)
+	}
+	return services.PredictorConfig{
+		Enabled:       getEnvBool("PREDICTOR_ENABLED", false),
+		BaseURL:       getEnv("PREDICTOR_URL", "http://predictor:8000"),
+		Token:         token,
+		TimeoutMs:     getEnvInt("PREDICTOR_TIMEOUT_MS", services.DefaultPredictorTimeoutMs),
+		TensorVersion: getEnv("PREDICTOR_TENSOR_VERSION", services.PredictorTensorVersion),
+	}
 }
 
 func resolveRegistrationMode() (services.RegistrationMode, error) {
